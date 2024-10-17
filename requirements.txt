@@ -1,4 +1,4 @@
-Flask==2.2.3
-cryptography==39.0.1
-Pillow==9.4.0
-python-dotenv==0.21.0
+Flask
+cryptography
+Pillow
+python-dotenv
