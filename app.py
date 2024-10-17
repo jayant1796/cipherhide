@@ -5,17 +5,23 @@ import io
 import os
 import base64
 import hashlib
+import logging  
+from dotenv import load_dotenv  
+
+
+load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = "steganography_secret_key" 
+app.secret_key = os.getenv("FLASK_SECRET_KEY", "steganography_secret_key")  
 
+
+logging.basicConfig(level=logging.INFO)
 
 def password_to_key(password):
     password_bytes = password.encode('utf-8')
     key = hashlib.sha256(password_bytes).digest()  
     return base64.urlsafe_b64encode(key) 
 
-#
 def encode_message(image, message, password):
     try:
         fernet = Fernet(password_to_key(password))
@@ -76,7 +82,6 @@ def decode_message(image, password):
     message_bits = [binary_msg[i:i+8] for i in range(0, len(binary_msg), 8)]
     decoded_bytes = bytes([int(byte, 2) for byte in message_bits])
 
-    
     delimiter = b'###'
     delimiter_index = decoded_bytes.find(delimiter)
     if delimiter_index == -1:
@@ -91,9 +96,7 @@ def decode_message(image, password):
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
-
         if "encode" in request.form:
-     
             image = request.files.get("encode_image")
             message = request.form.get("encode_message")
             password = request.form.get("encode_password")
@@ -105,6 +108,7 @@ def index():
             encoded_img, error = encode_message(image, message, password)
             if error:
                 flash(f"Encoding failed: {error}", "danger")
+                logging.error(f"Encoding error: {error}")
                 return redirect(url_for('index'))
             
             byte_io = io.BytesIO()
@@ -114,7 +118,6 @@ def index():
             return send_file(byte_io, mimetype='image/png', as_attachment=True, download_name="encoded_image.png")
         
         elif "decode" in request.form:
- 
             image = request.files.get("decode_image")
             password = request.form.get("decode_password")
             
@@ -125,6 +128,7 @@ def index():
             decoded_message, error = decode_message(image, password)
             if error:
                 flash(f"Decoding failed: {error}", "danger")
+                logging.error(f"Decoding error: {error}")
             else:
                 flash(f"Decoded message: {decoded_message}", "success")
     
@@ -132,4 +136,5 @@ def index():
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
+
     app.run(host='0.0.0.0', port=port, debug=False)
