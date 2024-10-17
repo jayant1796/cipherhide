@@ -1,4 +1,4 @@
 Flask
 cryptography
 Pillow
-gunicorn
+python-dotenv
