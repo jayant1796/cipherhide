@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Steganography Tool</title>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+ 
+    <link rel="stylesheet" href="../static/styles.css">
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="#">Steganography Tool</a>
+    </nav>
+
+
+    <div class="container mt-5">
+   
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+
+        <ul class="nav nav-tabs" id="steganographyTab" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="encode-tab" data-toggle="tab" href="#encode" role="tab" aria-controls="encode" aria-selected="true">Encode</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="decode-tab" data-toggle="tab" href="#decode" role="tab" aria-controls="decode" aria-selected="false">Decode</a>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="steganographyTabContent">
+      
+            <div class="tab-pane fade show active" id="encode" role="tabpanel" aria-labelledby="encode-tab">
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <form method="POST" enctype="multipart/form-data">
+                            <input type="hidden" name="encode" value="1">
+                            <div class="form-group">
+                                <label for="encode_image">Upload Image</label>
+                                <input type="file" class="form-control-file" name="encode_image" id="encode_image" accept="image/png, image/jpeg, image/bmp" required>
+                                <small class="form-text text-muted">Supported formats: PNG, JPEG, BMP.</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="encode_message">Message</label>
+                                <textarea class="form-control" name="encode_message" id="encode_message" rows="3" placeholder="Enter your message here" required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="encode_password">Encryption Password</label>
+                                <input type="password" class="form-control" name="encode_password" id="encode_password" placeholder="Enter a password" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Encode and Download</button>
+                        </form>
+                  
+                        <div class="mt-4">
+                            <h5>Preview Image Before Encoding:</h5>
+                            <img id="encode_preview" src="#" alt="Image Preview" class="img-fluid mt-2" style="max-height: 300px; display: none;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        
+            <div class="tab-pane fade" id="decode" role="tabpanel" aria-labelledby="decode-tab">
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <form method="POST" enctype="multipart/form-data">
+                            <input type="hidden" name="decode" value="1">
+                            <div class="form-group">
+                                <label for="decode_image">Upload Image</label>
+                                <input type="file" class="form-control-file" name="decode_image" id="decode_image" accept="image/png, image/jpeg, image/bmp" required>
+                                <small class="form-text text-muted">Supported formats: PNG, JPEG, BMP.</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="decode_password">Decryption Password</label>
+                                <input type="password" class="form-control" name="decode_password" id="decode_password" placeholder="Enter the password used for encryption" required>
+                            </div>
+                            <button type="submit" class="btn btn-warning">Decode Message</button>
+                        </form>
+                
+                        <div class="mt-4">
+                            <h5>Preview Image for Decoding:</h5>
+                            <img id="decode_preview" src="#" alt="Image Preview" class="img-fluid mt-2" style="max-height: 300px; display: none;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="../static/script.js"></script>
+</body>
+</html>
