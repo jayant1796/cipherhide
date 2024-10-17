@@ -8,12 +8,10 @@ import hashlib
 import logging  
 from dotenv import load_dotenv  
 
-
 load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "steganography_secret_key")  
-
 
 logging.basicConfig(level=logging.INFO)
 
@@ -72,13 +70,15 @@ def decode_message(image, password):
     binary_msg = ""
     width, height = img.size
 
+
     for y in range(height):
         for x in range(width):
             r, g, b = img.getpixel((x, y))
-            binary_msg += format(r, '08b')[-1]
-            binary_msg += format(g, '08b')[-1]
-            binary_msg += format(b, '08b')[-1]
+            binary_msg += format(r, '08b')[-1]  
+            binary_msg += format(g, '08b')[-1]  
+            binary_msg += format(b, '08b')[-1] 
 
+ 
     message_bits = [binary_msg[i:i+8] for i in range(0, len(binary_msg), 8)]
     decoded_bytes = bytes([int(byte, 2) for byte in message_bits])
 
@@ -86,6 +86,7 @@ def decode_message(image, password):
     delimiter_index = decoded_bytes.find(delimiter)
     if delimiter_index == -1:
         return None, "No hidden message found."
+
 
     try:
         message = fernet.decrypt(decoded_bytes[:delimiter_index])
@@ -136,5 +137,4 @@ def index():
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-
     app.run(host='0.0.0.0', port=port, debug=False)
