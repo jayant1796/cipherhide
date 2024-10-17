@@ -7,22 +7,20 @@ import base64
 import hashlib
 
 app = Flask(__name__)
-app.secret_key = "steganography_secret_key" 
-
+app.secret_key = "steganography_secret_key"
 
 def password_to_key(password):
     password_bytes = password.encode('utf-8')
-    key = hashlib.sha256(password_bytes).digest()  
-    return base64.urlsafe_b64encode(key) 
+    key = hashlib.sha256(password_bytes).digest()
+    return base64.urlsafe_b64encode(key)
 
-#
 def encode_message(image, message, password):
     try:
         fernet = Fernet(password_to_key(password))
         encrypted_message = fernet.encrypt(message.encode())
     except Exception as e:
         return None, str(e)
-    
+
     img = Image.open(image)
     img = img.convert("RGB")
     encoded_img = img.copy()
@@ -32,7 +30,7 @@ def encode_message(image, message, password):
     binary_msg = ''.join(format(byte, '08b') for byte in encrypted_message)
     data_index = 0
     width, height = img.size
-    
+
     for y in range(height):
         for x in range(width):
             r, g, b = img.getpixel((x, y))
@@ -76,7 +74,8 @@ def decode_message(image, password):
     message_bits = [binary_msg[i:i+8] for i in range(0, len(binary_msg), 8)]
     decoded_bytes = bytes([int(byte, 2) for byte in message_bits])
 
-    
+    print(f"Decoded bytes before delimiter check: {decoded_bytes}")
+
     delimiter = b'###'
     delimiter_index = decoded_bytes.find(delimiter)
     if delimiter_index == -1:
@@ -86,14 +85,13 @@ def decode_message(image, password):
         message = fernet.decrypt(decoded_bytes[:delimiter_index])
         return message.decode('utf-8'), None
     except Exception as e:
+        print(f"Decryption error: {e}") 
         return None, "Failed to decrypt message. Check the password."
 
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
-
         if "encode" in request.form:
-     
             image = request.files.get("encode_image")
             message = request.form.get("encode_message")
             password = request.form.get("encode_password")
@@ -114,7 +112,6 @@ def index():
             return send_file(byte_io, mimetype='image/png', as_attachment=True, download_name="encoded_image.png")
         
         elif "decode" in request.form:
- 
             image = request.files.get("decode_image")
             password = request.form.get("decode_password")
             
