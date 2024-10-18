@@ -2,4 +2,3 @@ Flask
 cryptography
 Pillow
 gunicorn
-numpy
